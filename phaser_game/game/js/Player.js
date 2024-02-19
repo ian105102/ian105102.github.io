@@ -199,41 +199,41 @@ function create() {
 
   this.scoreText.setScrollFactor(0);
   this.liftText.setScrollFactor(0);
-  let graphics = this.add.graphics();
-  let gameWidth = this.game.config.width * 2;
-  let gameHeight = this.game.config.height * 2;
-  let gridSize = 50; // 網格的單元大小
-  // 設置網格線的顏色和透明度
-  graphics.lineStyle(1, 0xffffff, 0.5);
+  // let graphics = this.add.graphics();
+  // let gameWidth = this.game.config.width * 2;
+  // let gameHeight = this.game.config.height * 2;
+  // let gridSize = 50; // 網格的單元大小
+  // // 設置網格線的顏色和透明度
+  // graphics.lineStyle(1, 0xffffff, 0.5);
 
-  // 繪製垂直線和添加數字
-  for (let x = -gameWidth; x <= gameWidth; x += gridSize) {
-    graphics.beginPath();
-    graphics.moveTo(x, -gameHeight);
-    graphics.lineTo(x, gameHeight);
-    graphics.closePath();
-    graphics.strokePath();
+  // // 繪製垂直線和添加數字
+  // for (let x = -gameWidth; x <= gameWidth; x += gridSize) {
+  //   graphics.beginPath();
+  //   graphics.moveTo(x, -gameHeight);
+  //   graphics.lineTo(x, gameHeight);
+  //   graphics.closePath();
+  //   graphics.strokePath();
 
-    // 添加垂直線上的數字
-    this.add.text(x + 5, 5, x.toString(), {
-      fontSize: "10px",
-      fill: "#ffffff",
-    });
-  }
+  //   // 添加垂直線上的數字
+  //   this.add.text(x + 5, 5, x.toString(), {
+  //     fontSize: "10px",
+  //     fill: "#ffffff",
+  //   });
+  // }
 
-  // 繪製水平線和添加數字
-  for (let y = -gameHeight; y <= gameHeight; y += gridSize) {
-    graphics.beginPath();
-    graphics.moveTo(-gameWidth, y);
-    graphics.lineTo(gameWidth, y);
-    graphics.closePath();
-    graphics.strokePath();
-    // 添加水平線上的數字
-    this.add.text(5, y + 5, y.toString(), {
-      fontSize: "10px",
-      fill: "#ffffff",
-    });
-  }
+  // // 繪製水平線和添加數字
+  // for (let y = -gameHeight; y <= gameHeight; y += gridSize) {
+  //   graphics.beginPath();
+  //   graphics.moveTo(-gameWidth, y);
+  //   graphics.lineTo(gameWidth, y);
+  //   graphics.closePath();
+  //   graphics.strokePath();
+  //   // 添加水平線上的數字
+  //   this.add.text(5, y + 5, y.toString(), {
+  //     fontSize: "10px",
+  //     fill: "#ffffff",
+  //   });
+  // }
 }
 function updatePlayerHealthBar() {
   // 更新血量條的寬度
