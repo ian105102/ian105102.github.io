@@ -22,7 +22,7 @@ function preload() {
 function initializeInput() {
   this.mouseX = 0;
   this.mouseY = 0;
-
+  this.invincibleTime_ = null;
   this.cursors = this.input.keyboard.createCursorKeys();
   this.input.keyboard.on("keydown-W", () => {
     Jump.call(this); // 使用箭頭函數確保正確的上下文
@@ -34,7 +34,7 @@ function initializeInput() {
     Jump.call(this); // 使用箭頭函數確保正確的上下文
   });
   this.input.keyboard.on("keydown-F", () => {
-    Sprint.call(this); // 使用箭頭函數確保正確的上下文
+    createEnemy.call(this);
   });
   this.input.keyboard.on("keydown-G", () => {
     bombCreate.call(this); // 使用箭頭函數確保正確的上下文
@@ -100,12 +100,12 @@ function initializeBackground() {
 function initializePlayer() {
   this.player = this.physics.add.sprite(95, 506, "dude");
   this.player.setBounce(0, 0);
-  this.player.body.setGravityY(1000);
+  this.player.body.setGravityY(1350);
   this.player.health = 3;
   this.player.body.debug = true;
   this.player.body.setSize(10, 30);
   let offsetX = 32 / 2 - this.player.body.width / 2;
-  let offsetY = 48 / 2 - this.player.body.height / 2 + 10;
+  let offsetY = 48 / 2 - this.player.body.height / 2 + 8;
   this.player.body.setOffset(offsetX, offsetY);
 
   this.head = this.add.sprite(400, 300, "head");
@@ -196,12 +196,46 @@ function initializeUIset() {
   this.liftText.setScrollFactor(0);
 }
 function initializeEvent() {
+  this.physics.add.collider(this.enemys, this.platforms);
   this.physics.add.collider(this.player, this.platforms);
   this.physics.add.collider(this.bombs, this.platforms);
   this.physics.add.collider(this.bombs, this.bullets, hitbullet, null, this);
   this.physics.add.collider(this.player, this.bombs, hitBomb, null, this);
   this.physics.add.collider(this.stars, this.platforms);
   this.physics.add.overlap(this.player, this.stars, collectStar, null, this);
+  this.physics.add.overlap(
+    this.bullets,
+    this.platforms,
+    (bullet, platform) => {
+      bullet.destroy();
+    },
+    null,
+    this
+  );
+  this.physics.add.overlap(
+    this.enemys,
+    this.bullets,
+    (enemy, bullet) => {
+      bullet.destroy();
+      enemy.destroy();
+    },
+    null,
+    this
+  );
+  this.physics.add.collider(
+    this.enemys,
+    this.player,
+    (player, enemy) => {
+      if (!this.invincibleTime_) {
+        this.player.health--;
+        updatePlayerHealthBar.call(this);
+        invincibleTime.call(this, player);
+      }
+    },
+    null,
+    this
+  );
+  this.physics.add.collider(this.enemys, this.enemys);
 }
 function initializeMap() {
   this.miniMapCamera = this.cameras.add(525, 420, 270, 170).setZoom(0.16); // 在右下角添加一個100x75的鏡頭，並將其縮放為原來的十分之一
@@ -229,32 +263,104 @@ function create() {
   initializeBackground.call(this);
   initializePlatforms.call(this);
   initializePlayer.call(this);
-
+  this.enemys = this.physics.add.group();
   this.stars = this.physics.add.group();
-  createStar.call(this);
   this.bullets = this.physics.add.group();
-  this.physics.add.overlap(
-    this.bullets,
-    this.platforms,
-    (bullet, platform) => {
-      bullet.destroy();
-    },
-    null,
-    this
-  );
+
   this.stars.children.iterate(function (child) {
     child.setBounceY(Phaser.Math.FloatBetween(0.4, 0.8));
   });
   this.bombs = this.physics.add.group();
-
+  createStar.call(this);
   initializeUIset.call(this);
   initializeEvent.call(this);
   initializeMap.call(this);
 }
+function createEnemy() {
+  if (this.enemys.getLength() > 15) {
+    return;
+  }
+  let platform;
+  do {
+    platform =
+      this.platforms.getChildren()[
+        Phaser.Math.Between(0, this.platforms.getChildren().length - 1)
+      ];
+  } while (
+    platform.body.top - 100 < this.player.body.top &&
+    platform.body.top >= this.player.body.top &&
+    platform.body.left - 400 < this.player.body.left &&
+    platform.body.right + 400 > this.player.body.right
+  );
 
+  let enemy = this.enemys.create(
+    Phaser.Math.Between(platform.body.left, platform.body.right),
+    platform.y - platform.displayHeight / 2 - 50 / 2,
+    "head"
+  );
+  enemy.setOrigin(0.5, 0.5);
+  enemy.setGravityY(300);
+  enemy.speed = 50;
+  enemy.cheak = false;
+  enemy.lastTime = 0;
+  // 設置敵人的移動方向為右邊
+  enemy.direction = 1;
+}
 function update() {
+  this.enemys.children.each((enemy) => {
+    let platform_t = null;
+    this.platforms.children.each((p) => {
+      if (
+        enemy.body.bottom === p.body.top &&
+        enemy.body.right >= p.body.left &&
+        enemy.body.left <= p.body.right
+      ) {
+        platform_t = p;
+      }
+    });
+    if (platform_t !== null) {
+      if (
+        enemy.body.right >= platform_t.body.right ||
+        enemy.body.touching.right
+      ) {
+        enemy.direction = -1;
+      } else if (
+        enemy.body.left <= platform_t.body.left ||
+        enemy.body.touching.left
+      ) {
+        enemy.direction = 1;
+      }
+    }
+    if (enemy.body.velocity.x < 0) {
+      enemy.setFlipX(true); // 左右翻轉
+    } else if (enemy.body.velocity.x > 0) {
+      enemy.setFlipX(false);
+    }
+    let currentTime = this.time.now;
+    let deltaTime = currentTime - enemy.lastTime;
+    if (deltaTime >= 200) {
+      enemy.cheak = checkObstacleBetweenObjects(
+        enemy,
+        this.player,
+        this.platforms
+      );
+      enemy.lastTime = currentTime;
+    }
+    if (enemy.cheak) {
+      enemy.clearTint();
+      enemy.setVelocityX(enemy.speed * enemy.direction);
+    } else {
+      enemy.setTint(0xff0000);
+      if (enemy.body.x < this.player.x) {
+        enemy.setVelocityX(enemy.speed * 5.2);
+      } else {
+        enemy.setVelocityX(-enemy.speed * 5.2);
+      }
+    }
+  });
+
   this.head.x = this.player.body.x + this.player.body.width / 2;
-  this.head.y = this.player.body.y + 16;
+  this.head.y = this.player.body.y + 19;
   this.gun.setVelocity(
     (this.player.body.x + this.player.body.width / 2 - this.gun.x) * 10,
     (this.player.body.y + 15 - this.gun.y) * 10
@@ -307,29 +413,82 @@ function update() {
       bullet.destroy();
     }
   }, this);
+  this.bombs.children.each((bomb) => {
+    bomb.setGravity(0, 0);
+
+    let angle = Phaser.Math.Angle.Between(
+      bomb.x,
+      bomb.y,
+      this.player.x,
+      this.player.y
+    );
+    let velocity = new Phaser.Math.Vector2();
+    velocity.setToPolar(angle, 200); // 設置速度
+    bomb.setVelocity(
+      bomb.body.velocity.x + velocity.x / 40,
+      bomb.body.velocity.y + velocity.y / 40
+    );
+
+    if (
+      bomb.body.x < -2500 ||
+      bomb.body.x > 2500 ||
+      bomb.body.y < -2500 ||
+      bomb.body.y > 2500
+    ) {
+      bomb.destroy();
+      bomb.healthBar.destroy();
+      bomb.healthBarBackground.destroy();
+    }
+  }, this);
 
   if (this.player.body.touching.down) {
     this.SprintNum = 1;
   }
   this.bombs.getChildren().forEach((bomb) => {
-    bomb.healthBarBackground.x = bomb.x - 50;
+    bomb.healthBarBackground.x = bomb.body.x - 50;
     bomb.healthBarBackground.y = bomb.body.top - 20;
-    bomb.healthBar.x = bomb.x - 50;
+    bomb.healthBar.x = bomb.body.x - 50;
     bomb.healthBar.y = bomb.body.top - 20;
-    bomb.healthBar.setSize(100 * (bomb.health / 3), 10);
+
+    bomb.healthBar.setSize(100 * (bomb.health / bomb.maxhealth), 10);
     if (bomb.health <= 0) {
       bomb.healthBar.destroy();
       bomb.healthBarBackground.destroy();
       bomb.destroy();
     }
   });
+  this.stars.children.iterate((child) => {
+    // 定義漂浮的振幅和速度
+    let amplitude = 5; // 振幅，可以調整星星漂浮的幅度
+    let speed = 0.005; // 速度，可以調整星星漂浮的速度
 
+    // 使用正弦函數計算 Y 座標的偏移量，從而實現漂浮效果
+    child.y = child.originalY + Math.sin(this.time.now * speed) * amplitude;
+  });
   bombsAngle.call(this);
   playerMove.call(this);
   movementCorrection.call(this);
   maxSpeed.call(this);
   playerAnmation.call(this);
   camerasMove.call(this);
+}
+
+function checkObstacleBetweenObjects(object1, object2, obstacles) {
+  // 發射一條射線，從 object1 到 object2
+  let ray = new Phaser.Geom.Line(
+    object1.body.x,
+    object1.body.y,
+    object2.body.x,
+    object2.body.y
+  );
+  let intersection = false;
+  obstacles.getChildren().forEach((obstacle) => {
+    if (Phaser.Geom.Intersects.LineToRectangle(ray, obstacle.getBounds())) {
+      intersection = true;
+    }
+  });
+
+  return intersection;
 }
 
 function updatePlayerHealthBar() {
@@ -350,10 +509,13 @@ function createStar() {
     ) {
       this.stars.create(
         Phaser.Math.Between(platform.body.left, platform.body.right),
-        platform.body.top - 50,
+        platform.body.top - 25,
         "star"
       );
     }
+  });
+  this.stars.children.iterate(function (child) {
+    child.originalY = child.y;
   });
 }
 function fireBullet(pointer) {
@@ -560,12 +722,12 @@ function hitBomb(player, bomb) {
     console.log("hitBomb");
     invincibleTime.call(this, player, bomb);
     player.health--;
-
     updatePlayerHealthBar.call(this);
   }
 }
 function hitbullet(bomb, bullet) {
   bomb.health--;
+  bullet.destroy();
   console.log(bomb.health);
 }
 function invincibleTime(player) {
@@ -604,10 +766,9 @@ function collectStar(player, star) {
 
   main.score += 10;
   this.scoreText.setText("Score: " + main.score);
-
+  createEnemy.call(this);
   if (this.stars.countActive(true) === 0) {
     createStar.call(this);
-
     bombCreate.call(this);
   }
 }
@@ -616,9 +777,9 @@ function bombCreate() {
     this.player.x < 400
       ? Phaser.Math.Between(400, 800)
       : Phaser.Math.Between(0, 400);
-  let bomb = this.bombs.create(x, 16, "bomb").setScale(2, 2).refreshBody();
-  bomb.health = 3; // 設置炸彈的生命值
-
+  let bomb = this.bombs.create(x, -350, "bomb").setScale(2, 2).refreshBody();
+  bomb.health = 8; // 設置炸彈的生命值
+  bomb.maxhealth = 8;
   bomb.healthBarBackground = this.add.rectangle(
     bomb.x - 50,
     bomb.y - 20,
@@ -635,11 +796,8 @@ function bombCreate() {
     0x00ff00
   );
   bomb.healthBar.setOrigin(0, 0.5);
-
   bomb.maxSpeed = 200;
-  bomb.setBounce(1);
-  bomb.setCollideWorldBounds(true);
-  bomb.setVelocity(Phaser.Math.Between(-200, 200), 20);
+  bomb.setBounce(0);
 }
 function edgeJump() {
   this.delayedJump_ = this.time.addEvent({
@@ -711,7 +869,7 @@ function Sprint() {
       delay: 150 / 30, // 每次執行間隔時間（毫秒）
       callback: () => {
         if (this.sprint_.getOverallProgress() == 1) {
-          this.player.setGravityY(1000);
+          this.player.setGravityY(1350);
 
           this.sprint_.remove();
           this.sprint_ = null;
