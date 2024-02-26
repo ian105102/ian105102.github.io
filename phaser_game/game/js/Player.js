@@ -420,10 +420,12 @@ function update() {
     if (enemy.angry) {
       enemy.setTint(0xff0000);
       if (enemy.body.x < this.player.x) {
+        enemy.direction = 1;
         enemy.setVelocityX(
           enemy.speed * 5.2 + (this.player.body.x - enemy.body.x) / 2
         );
       } else {
+        enemy.direction = -1;
         enemy.setVelocityX(
           -enemy.speed * 5.2 + (this.player.body.x - enemy.body.x) / 2
         );
