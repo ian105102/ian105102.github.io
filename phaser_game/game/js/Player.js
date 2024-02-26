@@ -401,7 +401,7 @@ function update() {
     }
 
     if (enemy.angry && enemy.body.touching.down) {
-      if (this.player.body.bottom < enemy.body.bottom) {
+      if (this.player.body.bottom < enemy.body.bottom-80) {
         enemy.setVelocityY(-550);
       }
     }
