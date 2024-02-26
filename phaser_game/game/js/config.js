@@ -10,6 +10,7 @@ const config = {
     default: "arcade",
     arcade: {
       gravity: { },
+      debug: true,
     },
   },
   // scene: [start, main , end],
