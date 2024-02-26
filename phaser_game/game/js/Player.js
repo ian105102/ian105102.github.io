@@ -7,17 +7,17 @@ const main = {
 };
 
 function preload() {
-  this.load.image("sky", "game/assets/sky.png");
-  this.load.image("ground", "game/assets/platform.png");
-  this.load.image("star", "game/assets/star.png");
-  this.load.image("bomb", "game/assets/bomb.png");
-  this.load.image("head", "game/assets/head.png");
-  this.load.image("bullet", "game/assets/bullet.png");
-  this.load.spritesheet("dude", "game/assets/dude.png", {
+  this.load.image("sky", "assets/sky.png");
+  this.load.image("ground", "assets/platform.png");
+  this.load.image("star", "assets/star.png");
+  this.load.image("bomb", "assets/bomb.png");
+  this.load.image("head", "assets/head.png");
+  this.load.image("gun", "assets/gun.png");
+  this.load.image("bullet", "assets/bullet.png");
+  this.load.spritesheet("dude", "assets/dude.png", {
     frameWidth: 32,
     frameHeight: 48,
   });
-  this.load.image("gun", "game/assets/gun.png");
 }
 function initializeInput() {
   this.mouseX = 0;
@@ -277,7 +277,7 @@ function create() {
   initializeMap.call(this);
 }
 function createEnemy() {
-  if (this.enemys.getLength() > 15) {
+  if (this.enemys.getLength() > 20) {
     return;
   }
   let platform;
@@ -299,13 +299,15 @@ function createEnemy() {
     "head"
   );
   enemy.setOrigin(0.5, 0.5);
-  enemy.setGravityY(300);
+  enemy.setGravityY(1300);
   enemy.speed = 50;
-  enemy.cheak = false;
+  enemy.angry = false;
   enemy.lastTime = 0;
   // 設置敵人的移動方向為右邊
   enemy.direction = 1;
 }
+
+
 function update() {
   this.enemys.children.each((enemy) => {
     let platform_t = null;
@@ -336,26 +338,99 @@ function update() {
     } else if (enemy.body.velocity.x > 0) {
       enemy.setFlipX(false);
     }
+
+    let check = false;
     let currentTime = this.time.now;
     let deltaTime = currentTime - enemy.lastTime;
-    if (deltaTime >= 200) {
-      enemy.cheak = checkObstacleBetweenObjects(
+    if (
+      Phaser.Math.Distance.Between(
+        this.player.x,
+        this.player.y,
+        enemy.x,
+        enemy.y
+      ) < 700 &&
+      deltaTime >= 200
+    ) {
+      enemy.lastTime = currentTime;
+      check = checkObstacleBetweenObjects.call(
+        this,
         enemy,
         this.player,
         this.platforms
       );
-      enemy.lastTime = currentTime;
+      if (enemy.angry) {
+        if (
+          check == true ||
+          Phaser.Math.Distance.Between(
+            this.player.x,
+            this.player.y,
+            enemy.x,
+            enemy.y
+          ) > 600
+        ) {
+          enemy.angry = false;
+        }
+      } else if (
+        Phaser.Math.Distance.Between(
+          this.player.x,
+          this.player.y,
+          enemy.x,
+          enemy.y
+        ) < 500
+      ) {
+        if (
+          (this.player.x > enemy.x && enemy.direction == 1) ||
+          (this.player.x < enemy.x && enemy.direction == -1)
+        ) {
+          enemy.angry = true;
+        }
+        if (
+          Phaser.Math.Distance.Between(
+            this.player.x,
+            this.player.y,
+            enemy.x,
+            enemy.y
+          ) < 150
+        ) {
+          enemy.angry = true;
+        }
+        if (check == true) {
+          enemy.angry = false;
+        }
+      }
     }
-    if (enemy.cheak) {
-      enemy.clearTint();
-      enemy.setVelocityX(enemy.speed * enemy.direction);
-    } else {
+
+    if (enemy.angry && enemy.body.touching.down) {
+      if (this.player.body.bottom < enemy.body.bottom) {
+        enemy.setVelocityY(-550);
+      }
+    }
+    if (
+      platform_t !== null &&
+      (enemy.body.right > platform_t.body.right ||
+        enemy.body.left < platform_t.body.left) &&
+      enemy.angry &&
+      enemy.body.touching.down 
+    ) {
+      if (this.player.body.bottom < enemy.body.bottom) {
+        enemy.setVelocityY(-550);
+      }
+    }
+
+    if (enemy.angry) {
       enemy.setTint(0xff0000);
       if (enemy.body.x < this.player.x) {
-        enemy.setVelocityX(enemy.speed * 5.2);
+        enemy.setVelocityX(
+          enemy.speed * 5.2 + (this.player.body.x - enemy.body.x) / 2
+        );
       } else {
-        enemy.setVelocityX(-enemy.speed * 5.2);
+        enemy.setVelocityX(
+          -enemy.speed * 5.2 + (this.player.body.x - enemy.body.x) / 2
+        );
       }
+    } else {
+      enemy.clearTint();
+      enemy.setVelocityX(enemy.speed * enemy.direction);
     }
   });
 
@@ -476,10 +551,10 @@ function update() {
 function checkObstacleBetweenObjects(object1, object2, obstacles) {
   // 發射一條射線，從 object1 到 object2
   let ray = new Phaser.Geom.Line(
-    object1.body.x,
-    object1.body.y,
-    object2.body.x,
-    object2.body.y
+    object1.body.x + object1.body.width / 2,
+    object1.body.y + object1.body.height / 2,
+    object2.body.x + object2.body.width / 2,
+    object2.body.y + object2.body.height / 2
   );
   let intersection = false;
   obstacles.getChildren().forEach((obstacle) => {
@@ -487,7 +562,6 @@ function checkObstacleBetweenObjects(object1, object2, obstacles) {
       intersection = true;
     }
   });
-
   return intersection;
 }
 
