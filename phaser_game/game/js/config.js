@@ -13,7 +13,7 @@ const config = {
     default: "arcade",
     arcade: {
       gravity: { y: 0 },
-      debug:true,
+      debug:false,
     },
   },
   scene: [start,store, menu ,fight, end, Pause,mission],
