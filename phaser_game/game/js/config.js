@@ -1,7 +1,10 @@
-import main from "./Player.js";
-import end from "./end.js";
-import start from "./index.js";
-import Pause from "./Pause.js";
+import fight from "./scene/fight.js";
+import end from "./scene/end.js";
+import start from "./scene/index.js";
+import Pause from "./scene/pause.js";
+import menu from "./scene/menu.js";
+import mission from "./scene/mission.js";
+import store from "./scene/store.js";
 const config = {
   type: Phaser.AUTO,
   width: 800,
@@ -9,10 +12,11 @@ const config = {
   physics: {
     default: "arcade",
     arcade: {
+      gravity: { y: 0 },
+      debug:true,
     },
   },
-  // scene: [start, main , end],
-  scene: [start, main, end, Pause],
+  scene: [start,store, menu ,fight, end, Pause,mission],
   scale: {
     mode: Phaser.Scale.FIT,
     autoCenter: Phaser.Scale.CENTER_BOTH,

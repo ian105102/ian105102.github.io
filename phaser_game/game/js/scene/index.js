@@ -1,16 +1,20 @@
-import main from "./Player.js";
-function create( ) {
-  const gameover = this.add
-    .text( 800 / 2, 100, `GAME OVER`, {
+function create() {
+  
+  this.game.RoleInfo = {
+    money: 0,
+    max_health: 3,
+  };
+  const gamestart = this.add
+    .text(800 / 2, 200, `GAME START`, {
       color: "#ff0",
       fontFamily: "Tahoma",
-      fontSize: 40,
+      fontSize: 80,
       resolution: 2,
     })
     .setOrigin(0.5, 0.5);
 
   this.restart = this.add
-    .text( 800 / 2, 400, "restart", {
+    .text(800 / 2, 400, "start", {
       color: "#fff",
       fontFamily: "Tahoma",
       fontSize: 40,
@@ -21,7 +25,7 @@ function create( ) {
     .on(
       "pointerup",
       () => {
-        this.scene.start("start");
+        this.scene.start("menu");
       },
       this
     )
@@ -31,17 +35,9 @@ function create( ) {
     .on("pointerout", () => {
       this.restart.alpha = 1;
     });
-  this.add
-    .text( 800 / 2, 200, `SCORE: ${main.score}`, {
-      color: "#fff",
-      fontFamily: "Tahoma",
-      fontSize: 40,
-      resolution: 2,
-    })
-    .setOrigin(0.5, 0.5);
 
   this.tweens.add({
-    targets: gameover,
+    targets: gamestart,
     y: { from: 0, to: 100 },
     ease: "Bounce.easeOut",
     duration: 1000,
@@ -50,10 +46,10 @@ function create( ) {
   });
 }
 
-const end = {
-  key: "end",
+const start = {
+  key: "start",
   preload: function () {},
   create: create,
   update: function () {},
 };
-export default end;
+export default start;
