@@ -5,7 +5,7 @@ let bomb = function (game, platforms, player) {
 
   this.invincibleTime_ = null;
   this.maxhealth = 8;
-  this.healthbarsize = 100+this.maxhealth*5;
+  this.healthbarsize = 100 + this.maxhealth * 5;
   this.bombs = this.game.physics.add.group();
   console.log("bomb_created");
 };
@@ -38,12 +38,17 @@ bomb.prototype.Update = function () {
   }, this);
 
   this.bombs.getChildren().forEach((bomb) => {
-    bomb.healthBarBackground.x = bomb.body.x + (bomb.body.width / 2 -this.healthbarsize / 2);
+    bomb.healthBarBackground.x =
+      bomb.body.x + (bomb.body.width / 2 - this.healthbarsize / 2);
     bomb.healthBarBackground.y = bomb.body.top - 20;
-    bomb.healthBar.x = bomb.body.x + (bomb.body.width / 2 -this.healthbarsize / 2);
+    bomb.healthBar.x =
+      bomb.body.x + (bomb.body.width / 2 - this.healthbarsize / 2);
     bomb.healthBar.y = bomb.body.top - 20;
 
-    bomb.healthBar.setSize(this.healthbarsize * (bomb.health / bomb.max_health), 10);
+    bomb.healthBar.setSize(
+      this.healthbarsize * (bomb.health / bomb.max_health),
+      10
+    );
     if (bomb.health <= 0) {
       bomb.healthBar.destroy();
       bomb.healthBarBackground.destroy();
@@ -70,10 +75,10 @@ bomb.prototype.BombCreate = function () {
       ? Phaser.Math.Between(400, 800)
       : Phaser.Math.Between(0, 400);
   let bomb = this.bombs.create(x, -350, "bomb").setScale(2, 2).refreshBody();
-  bomb.health =  this.maxhealth; // 設置炸彈的生命值
-  bomb.max_health =  this.maxhealth;
+  bomb.health = this.maxhealth; // 設置炸彈的生命值
+  bomb.max_health = this.maxhealth;
   bomb.healthBarBackground = this.game.add.rectangle(
-    bomb.x + (bomb.body.width / 2 -this.healthbarsize / 2),
+    bomb.x + (bomb.body.width / 2 - this.healthbarsize / 2),
     bomb.y - 20,
     this.healthbarsize,
     10,
@@ -81,7 +86,7 @@ bomb.prototype.BombCreate = function () {
   );
   bomb.healthBarBackground.setOrigin(0, 0.5);
   bomb.healthBar = this.game.add.rectangle(
-    bomb.x + (bomb.body.width / 2 -this.healthbarsize / 2),
+    bomb.x + (bomb.body.width / 2 - this.healthbarsize / 2),
     bomb.y - 20,
     this.healthbarsize,
     10,

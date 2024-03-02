@@ -1,5 +1,4 @@
 function create() {
-  
   this.game.RoleInfo = {
     money: 0,
     max_health: 3,

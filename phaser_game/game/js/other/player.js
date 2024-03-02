@@ -1,10 +1,9 @@
 import bullet from "./bullet.js";
-let player = function (game, platforms,RoleInfo) {
+let player = function (game, platforms, RoleInfo) {
   this.game = game;
   this.platforms = platforms;
   this.RoleInfo = RoleInfo;
-  
-  
+
   this.invincibleTime_ = null;
   this.SprintNum = 0;
   this.health = this.RoleInfo.max_health;
@@ -62,15 +61,18 @@ let player = function (game, platforms,RoleInfo) {
     },
     this
   );
-  if(!this.game.anims.exists('left')){
+  if (!this.game.anims.exists("left")) {
     this.game.anims.create({
       key: "left",
-      frames: this.game.anims.generateFrameNumbers("dude", { start: 0, end: 3 }),
+      frames: this.game.anims.generateFrameNumbers("dude", {
+        start: 0,
+        end: 3,
+      }),
       frameRate: 10,
       repeat: -1,
     });
   }
-  if(!this.game.anims.exists('turn')){
+  if (!this.game.anims.exists("turn")) {
     this.game.anims.create({
       key: "turn",
       frames: [{ key: "dude", frame: 4 }],
@@ -78,10 +80,13 @@ let player = function (game, platforms,RoleInfo) {
     });
   }
 
-  if(!this.game.anims.exists('right')){
+  if (!this.game.anims.exists("right")) {
     this.game.anims.create({
       key: "right",
-      frames: this.game.anims.generateFrameNumbers("dude", { start: 5, end: 8 }),
+      frames: this.game.anims.generateFrameNumbers("dude", {
+        start: 5,
+        end: 8,
+      }),
       frameRate: 10,
       repeat: -1,
     });
@@ -436,7 +441,6 @@ player.prototype.InvincibleTime = function () {
             this.sprite.setTint(0xffffff);
             this.head.setTint(0xffffff);
             this.head.setAlpha(1);
-
           }
         }
       },

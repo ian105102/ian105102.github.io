@@ -4,25 +4,29 @@ let slime = function (game, platforms, player) {
   this.player = player;
   this.maxhealth = 2;
 
-  this.healthbarsize = 5+this.maxhealth*5;
+  this.healthbarsize = 5 + this.maxhealth * 5;
   this.slimes = this.game.physics.add.group();
   console.log("slime_created");
 };
 slime.prototype.Update = function () {
   this.slimes.getChildren().forEach((slime) => {
-    slime.healthBarBackground.x = slime.body.x + (slime.body.width / 2 -this.healthbarsize / 2);
+    slime.healthBarBackground.x =
+      slime.body.x + (slime.body.width / 2 - this.healthbarsize / 2);
     slime.healthBarBackground.y = slime.body.top - 20;
-    slime.healthBar.x = slime.body.x + (slime.body.width / 2 -this.healthbarsize / 2);
+    slime.healthBar.x =
+      slime.body.x + (slime.body.width / 2 - this.healthbarsize / 2);
     slime.healthBar.y = slime.body.top - 20;
 
-    slime.healthBar.setSize(this.healthbarsize * (slime.health / slime.maxhealth), 5);
+    slime.healthBar.setSize(
+      this.healthbarsize * (slime.health / slime.maxhealth),
+      5
+    );
     if (slime.health <= 0) {
       slime.healthBar.destroy();
       slime.healthBarBackground.destroy();
       slime.destroy();
     }
   });
-
 
   this.slimes.children.each((slime) => {
     let platform_t = null;
@@ -68,9 +72,17 @@ slime.prototype.Update = function () {
       deltaTime >= 200
     ) {
       this.slimes.getChildren().forEach((otherslime) => {
-        if(Phaser.Math.Distance.Between(slime.body.x,slime.body.y,otherslime.body.x,otherslime.body.y)  < 150 && otherslime!=slime){ 
-          if(otherslime.angry){
-            slime.angry=true;
+        if (
+          Phaser.Math.Distance.Between(
+            slime.body.x,
+            slime.body.y,
+            otherslime.body.x,
+            otherslime.body.y
+          ) < 150 &&
+          otherslime != slime
+        ) {
+          if (otherslime.angry) {
+            slime.angry = true;
           }
         }
       });
@@ -189,10 +201,10 @@ slime.prototype.CreateSlime = function () {
   slime.lastTime = 0;
   slime.direction = 1;
 
-  slime.health=this.maxhealth;
-  slime.maxhealth=this.maxhealth;
+  slime.health = this.maxhealth;
+  slime.maxhealth = this.maxhealth;
   slime.healthBarBackground = this.game.add.rectangle(
-    slime.body.x + (slime.body.width / 2 -this.healthbarsize / 2),
+    slime.body.x + (slime.body.width / 2 - this.healthbarsize / 2),
     slime.body.y - 20,
     this.healthbarsize,
     5,
@@ -200,7 +212,7 @@ slime.prototype.CreateSlime = function () {
   );
   slime.healthBarBackground.setOrigin(0, 0.5);
   slime.healthBar = this.game.add.rectangle(
-    slime.body.x + (slime.body.width / 2 -this.healthbarsize / 2),
+    slime.body.x + (slime.body.width / 2 - this.healthbarsize / 2),
     slime.body.y - 20,
     this.healthbarsize,
     5,

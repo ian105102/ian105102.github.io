@@ -40,7 +40,7 @@ function create() {
   initializeBackground.call(this);
   initializePlatforms.call(this);
 
-  this.player = new player(this, this.platforms,this.game.RoleInfo);
+  this.player = new player(this, this.platforms, this.game.RoleInfo);
   this.slime = new slime(this, this.platforms, this.player.sprite);
   this.star = new star(this, this.platforms);
   this.bomb = new bomb(this, this.platforms, this.player.sprite);
@@ -141,15 +141,21 @@ function initializeUIset() {
     resolution: 2,
   });
   this.healthBarBackground = this.add
-    .rectangle(175, 555, (50+this.player.RoleInfo.max_health*5)+10, 35, 0x000000)
+    .rectangle(
+      175,
+      555,
+      50 + this.player.RoleInfo.max_health * 5 + 10,
+      35,
+      0x000000
+    )
     .setOrigin(0, 0.5)
     .setScrollFactor(0);
   this.healthBarBackground_ = this.add
-    .rectangle(180, 555, (50+this.player.RoleInfo.max_health*5), 25, 0xff0000)
+    .rectangle(180, 555, 50 + this.player.RoleInfo.max_health * 5, 25, 0xff0000)
     .setOrigin(0, 0.5)
     .setScrollFactor(0);
   this.healthBar = this.add
-    .rectangle(180, 555, (50+this.player.RoleInfo.max_health*5), 25, 0x00ff00)
+    .rectangle(180, 555, 50 + this.player.RoleInfo.max_health * 5, 25, 0x00ff00)
     .setOrigin(0, 0.5)
     .setScrollFactor(0);
   this.scoreText.setScrollFactor(0);
@@ -209,7 +215,7 @@ function initializeEvent() {
     this.player.bullet.bullets,
     (slime, bullet) => {
       slime.health--;
-      slime.angry=true;
+      slime.angry = true;
       bullet.destroy();
     },
     null,
@@ -251,7 +257,11 @@ function update() {
 }
 
 function UpdatePlayerHealthBar() {
-  this.healthBar.setSize((50+this.player.RoleInfo.max_health*5) * (this.player.health / this.player.RoleInfo.max_health), 25);
+  this.healthBar.setSize(
+    (50 + this.player.RoleInfo.max_health * 5) *
+      (this.player.health / this.player.RoleInfo.max_health),
+    25
+  );
   GmaeEnd.call(this);
 }
 
