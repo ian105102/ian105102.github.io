@@ -31,6 +31,9 @@ let player = function (game, platforms, RoleInfo) {
   this.gun.setOffset(this.gun.width * -0.4, this.gun.height * 0.5);
   this.gun.body.setAllowGravity(false);
 
+  this.skick= this.game.sound.add("kick");
+  this.skick.setVolume(0.2);
+
   this.cursors = this.game.input.keyboard.createCursorKeys();
   this.keyA = this.game.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.A);
   this.keyS = this.game.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.S);
@@ -320,11 +323,12 @@ player.prototype.Sprint = function () {
       delay: 150 / 30, // 每次執行間隔時間（毫秒）
       callback: () => {
         if (this.sprint_.getOverallProgress() == 1) {
-          this.sprite.setGravityY(1350);
+          
 
           this.sprint_.remove();
           this.sprint_ = null;
           this.SprintNum = 0;
+          this.sprite.setGravityY(1350);
           this.sprite.body.setVelocityX(max_velocity_x * 0.1);
           this.sprite.body.setVelocityY(max_velocity_y * 0.1);
           this.head.setTint(0xffffff);
@@ -453,6 +457,7 @@ player.prototype.InvincibleTime = function () {
 };
 player.prototype.hurt = function (damage) {
   if (this.invincibleTime_ == null) {
+    this.skick.play();
     this.health -= damage;
     this.InvincibleTime();
   }

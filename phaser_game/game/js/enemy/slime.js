@@ -10,6 +10,7 @@ let slime = function (game, platforms, player) {
 };
 slime.prototype.Update = function () {
   this.slimes.getChildren().forEach((slime) => {
+
     slime.healthBarBackground.x =
       slime.body.x + (slime.body.width / 2 - this.healthbarsize / 2);
     slime.healthBarBackground.y = slime.body.top - 20;
@@ -18,8 +19,7 @@ slime.prototype.Update = function () {
     slime.healthBar.y = slime.body.top - 20;
 
     slime.healthBar.setSize(
-      this.healthbarsize * (slime.health / slime.maxhealth),
-      5
+      this.healthbarsize * (slime.health / slime.maxhealth),5
     );
     if (slime.health <= 0) {
       slime.healthBar.destroy();
@@ -29,6 +29,7 @@ slime.prototype.Update = function () {
   });
 
   this.slimes.children.each((slime) => {
+
     let platform_t = null;
     this.platforms.children.each((p) => {
       if (
@@ -221,6 +222,7 @@ slime.prototype.CreateSlime = function () {
   slime.healthBar.setOrigin(0, 0.5);
   slime.setBounce(0);
 };
+
 export default slime;
 function checkObstacleBetweenObjects(object1, object2, obstacles) {
   // 發射一條射線，從 object1 到 object2

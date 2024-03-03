@@ -2,10 +2,13 @@ let bullet = function (game, platforms) {
   this.game = game;
   this.platforms = platforms;
 
+  this.sbulllet= this.game.sound.add("bullletsound");
+  this.sbulllet.setVolume(0.05);
   this.bullets = this.game.physics.add.group();
   console.log("bullet_created");
 };
 bullet.prototype.fireBullet = function (start, target) {
+  this.sbulllet.play();
   let sprite = this.bullets.create(start.x, start.y, "bullet");
   sprite.body.setSize(5, 5);
   let deltaX =

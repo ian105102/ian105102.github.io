@@ -1,4 +1,12 @@
 function create() {
+ 
+  let background = this.add.rectangle(
+    800/2,
+    600/2,
+    this.cameras.main.width,
+    this.cameras.main.height,
+    0x000000
+  );
   this.add
     .text(100, 50, "Store", {
       color: "#fff",
@@ -58,7 +66,8 @@ function create() {
     .on(
       "pointerup",
       () => {
-        this.scene.start("menu");
+        this.scene.resume("menu",{scene:"store"});
+        this.scene.stop();
       },
       this
     )
@@ -68,6 +77,7 @@ function create() {
     .on("pointerout", () => {
       this.restart.alpha = 1;
     });
+   
 }
 function update() {
   if (this.game.RoleInfo.money < 100) {
@@ -80,7 +90,6 @@ function update() {
 }
 const store = {
   key: "store",
-
   preload: function () {},
   create: create,
   update: update,

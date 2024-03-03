@@ -27,6 +27,7 @@ blackhole.prototype.Update = function () {
     this.sprite.disableBody(true, true);
     return;
   } else {
+
     this.sprite.body.enable = true;
     this.sprite.setVisible(true);
   }
@@ -40,7 +41,8 @@ blackhole.prototype.Update = function () {
     this.sprite.body.x,
     this.sprite.body.y
   );
-
+  
+  
   if (distance < 300) {
     this.blackOverlay.alpha +=
       (1 / ((distance * distance) / 4000) - this.blackOverlay.alpha) / 10;

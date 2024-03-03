@@ -16,6 +16,12 @@ const fight = {
 };
 
 function preload() {
+  this.load.audio("damaged", "assets/audio/damaged.mp3");
+  this.load.audio("coin", "assets/audio/coin.mp3");
+  this.load.audio("kick", "assets/audio/kick.mp3");
+  this.load.audio("bullletsound", "assets/audio/mini_bomb1.mp3");
+  this.load.audio("blackhole", "assets/audio/atmosphere_noise1.mp3");
+  this.load.audio("fightbgm", "assets/audio/fight_bgm.mp3");
   this.load.image("sky", "assets/sky.png");
   this.load.image("ground", "assets/platform.png");
   this.load.image("star", "assets/star.png");
@@ -29,6 +35,17 @@ function preload() {
   });
 }
 function create() {
+
+
+  this.sblackhole = this.sound.add("blackhole");
+  this.sblackhole.loop = true;
+  this.sblackhole.play();
+  this.sblackhole.setVolume(0);
+
+  this.bgm = this.sound.add("fightbgm");
+  this.bgm.loop = true;
+  this.bgm.setVolume(0.5);
+  this.bgm.play();
   this.pointer = this.input.mousePointer;
   this.pointer_point = {
     x: this.pointer.x,
@@ -46,6 +63,11 @@ function create() {
   this.bomb = new bomb(this, this.platforms, this.player.sprite);
   this.blackhole_end = new blackhole(this, this.player);
   this.blackhole_end.sprite.setPosition(-2100, 490);
+
+  this.scoin= this.game.sound.add("coin");
+  this.scoin.setVolume(0.5);
+  this.sdamaged = this.sound.add("damaged");
+  this.sdamaged.setVolume(0.05);
 
   this.star.CreateStar();
   initializeInput.call(this);
@@ -166,6 +188,8 @@ function initializeEvent() {
     this.player.sprite,
     this.blackhole_end.sprite,
     () => {
+      this.bgm.stop();
+      this.sblackhole.stop();
       this.scene.start("end", { pass: true, reward: this.mission.reward });
     },
     null,
@@ -178,6 +202,7 @@ function initializeEvent() {
     this.bomb.bombs,
     this.player.bullet.bullets,
     (bomb, bullet) => {
+      this.sdamaged.play();
       bomb.health--;
       bullet.destroy();
     },
@@ -214,6 +239,7 @@ function initializeEvent() {
     this.slime.slimes,
     this.player.bullet.bullets,
     (slime, bullet) => {
+      this.sdamaged.play();
       slime.health--;
       slime.angry = true;
       bullet.destroy();
@@ -225,6 +251,12 @@ function initializeEvent() {
     this.player.sprite,
     this.slime.slimes,
     (slime, player) => {
+      const relativeX = slime.body.x - player.body.x;
+      const relativeY = slime.body.y - player.body.y;
+      const length = Math.sqrt(relativeX * relativeX + relativeY * relativeY);
+      console.log(relativeX / length + "  " + relativeY / length);
+      this.player.sprite.setVelocityX((relativeX / length) * 500);
+      this.player.sprite.setVelocityY((relativeY / length) * 500);
       this.player.hurt(1);
     },
     null,
@@ -233,6 +265,7 @@ function initializeEvent() {
   this.physics.add.collider(this.slime.slimes, this.slime.slimes);
 }
 function StarCollect(player, star) {
+  this.scoin.play();
   star.disableBody(true, true);
   fight.score += 10;
   this.scoreText.setText("Score: " + fight.score);
@@ -242,8 +275,20 @@ function StarCollect(player, star) {
     this.bomb.BombCreate();
   }
 }
-
 function update() {
+  let distance = Phaser.Math.Distance.Between(
+    this.blackhole_end.sprite.body.x,
+    this.blackhole_end.sprite.body.y,
+    this.player.sprite.body.x,
+    this.player.sprite.body.y
+  );
+  
+  if (this.blackhole_end.isAlive) {
+    this.sblackhole.setVolume(1 /( distance/ 150) );
+  } else {
+    this.sblackhole.setVolume(0);
+  }
+
   if (fight.score >= this.mission.request) {
     this.blackhole_end.isAlive = true;
   }
@@ -255,7 +300,6 @@ function update() {
   CamerasMove.call(this);
   UpdatePlayerHealthBar.call(this);
 }
-
 function UpdatePlayerHealthBar() {
   this.healthBar.setSize(
     (50 + this.player.RoleInfo.max_health * 5) *
@@ -264,7 +308,6 @@ function UpdatePlayerHealthBar() {
   );
   GmaeEnd.call(this);
 }
-
 function CamerasMove() {
   this.cameras.main.scrollY = this.player.sprite.body.y - 300;
   this.cameras.main.scrollX = this.player.sprite.body.x - 400;
@@ -290,6 +333,8 @@ function CamerasMove() {
 }
 function GmaeEnd() {
   if (this.player.health <= 0) {
+    this.sblackhole.stop();
+    this.bgm.stop();
     this.scene.start("end", { pass: false, reward: this.mission.reward });
     this.delayedhitBomb_ = null;
     this.delayedJump_ = null;

@@ -5,10 +5,13 @@ const menu = {
   preload: preload,
   create: create,
   update: update,
-  score: 0,
 };
-
 function preload() {
+  this.load.audio("kick", "assets/audio/kick.mp3");
+  this.load.audio("damaged", "assets/audio/damaged.mp3");
+  this.load.audio("bullletsound", "assets/audio/mini_bomb1.mp3");
+  this.load.audio("blackhole", "assets/audio/atmosphere_noise1.mp3");
+  this.load.audio("menubgm", "assets/audio/menu_bgm.mp3");
   this.load.image("sky", "assets/sky.png");
   this.load.image("ground", "assets/platform.png");
   this.load.image("star", "assets/star.png");
@@ -25,6 +28,20 @@ function preload() {
   });
 }
 function create() {
+  this.sblackhole = this.sound.add("blackhole");
+  this.sblackhole.loop = true;
+  this.sblackhole.play();
+  this.sblackhole.setVolume(0);
+  this.bgm = this.sound.add("menubgm");
+  this.bgm.setVolume(0.5);
+  this.bgm.loop = true;
+  if (!this.bgm.isPlaying) {
+    this.bgm.play();
+  }
+  this.sblackhole.setVolume(1);
+  this.bgm.setVolume(0.2);
+
+
   this.pointer = this.input.mousePointer;
   this.pointer_point = {
     x: this.pointer.x,
@@ -130,6 +147,10 @@ function initializeUIset() {
   // }
 }
 function initializeEvent() {
+  this.events.on("pause", (scene, data) => {
+    this.sblackhole.setVolume(0);
+  });
+
   this.events.on("resume", (scene, data) => {
     if (!data) return;
     if (data.scene == "mission") {
@@ -141,7 +162,24 @@ function initializeEvent() {
     this.player.sprite,
     this.house,
     () => {
-      this.scene.start("store");
+      this.house.setVelocity(0, 0);
+      this.house.x = 1100;
+      this.house.y = 410;
+
+      this.player.sprite.x = 917;
+      this.player.sprite.y = 554;
+      this.player.gun.x = 807;
+      this.player.gun.y = 554;
+      if (this.player.sprint_) {
+        this.player.sprint_.remove();
+      }
+      this.player.sprite.setGravityY(1350);
+      this.player.sprite.setVelocity(0, 0);
+      this.player.head.setTint(0xffffff);
+      this.player.sprite.setTint(0xffffff);
+      this.scene.pause(this.scene.key);
+      this.scene.run("store");
+      this.scene.bringToTop("store");
     },
     null,
     this
@@ -150,6 +188,9 @@ function initializeEvent() {
     this.player.sprite,
     this.blackhole_fight.sprite,
     () => {
+      this.bgm.stop();
+      this.sblackhole.stop();
+      this.sblackhole.setVolume(0);
       this.scene.start("fight", this.mission);
     },
     null,
@@ -168,6 +209,19 @@ function initializeEvent() {
 }
 
 function update() {
+  let distance = Phaser.Math.Distance.Between(
+    this.blackhole_fight.sprite.body.x,
+    this.blackhole_fight.sprite.body.y,
+    this.player.sprite.body.x,
+    this.player.sprite.body.y
+  );
+  
+  if (this.blackhole_fight.isAlive) {
+    this.sblackhole.setVolume(1 /( distance/ 150) );
+  } else {
+    this.sblackhole.setVolume(0);
+  }
+
   this.blackhole_fight.Update();
   this.player.Update(this.platforms);
   CamerasMove.call(this);
