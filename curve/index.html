@@ -1,0 +1,98 @@
+<!--
+@File:index.html
+@Date:2024/9/26 下午3:25:50
+-->
+<!DOCTYPE html>
+<html lang="zh-Hant">
+    <head>
+        <title>hello world</title>
+        <meta charset="UTF-8">
+   
+        <link rel="stylesheet" href="Mainstyle.css">
+        
+  
+       
+    </head>
+    <body>
+
+  
+      <div class="container">
+      <div class="flowerCanva">
+        <button id="clear">清除畫布</button> <button id="submit">確認</button><button id="clearTemp">清除預覽</button> 
+      
+        <div style="position: relative; width: 1500px; height: 850px;">
+          <canvas id="layer1" width="1500" height="900"></canvas>
+          <!-- 第二層 Canvas -->
+          <canvas id="layer2" width="1500" height="900" ></canvas>
+        </div>
+      </div>
+        <div class="rightView">
+          <H1>基礎設定</H1>
+          <p>顏色 <input type="color" id="colorPicker" name="colorPicker" value="#e66465" /></p>
+          <div>
+            <div>
+              <label for="petalCount">花瓣數量:</label>
+              <input type="range" id="petalCount" name="petalCount" min="1" max="20" value="5" /><span id="petalCountValue">5</span>
+            </div>
+            <div>
+              <label for="innerRadius">花瓣內圓半徑:</label>
+              <input type="range" id="innerRadius" name="innerRadius" min="10" max="100" value="30" /><span id="innerRadiusValue">30</span>
+            </div>
+            <div>
+              <label for="outerRadius">花瓣外圓半徑:</label>
+              <input type="range" id="outerRadius" name="outerRadius" min="100" max="500" value="250" /><span id="outerRadiusValue">250</span>
+            </div>
+            <div>
+              <label for="petalWidth">花瓣寬度:</label>
+              <input type="range" id="petalWidth" name="petalWidth" min="0" max="1" value="0.05" step="0.01" /><span id="petalWidthValue">0.05</span>
+              
+            </div>
+            <div>
+              <label for="lineWidth">線條粗細:</label>
+              <input type="range" id="lineWidth" name="lineWidth" min="1" max="20" value="5" /><span id="lineWidthValue">5</span>
+            </div>
+            <button id="resetSetting">重設基礎設定</button>
+          </div>
+          <H1>轉換(越上越先)</H1>
+          <ul id="listWithHandle">
+            <li id="rotationAngle" data-id="1">
+              <i class="fa-solid fa-sort fa-2xl MoveIcon"></i><br>
+              <label for="rotationAngle">旋轉角度 (Rotate):</label>
+              <input type="range" id="rotationAngle" name="rotationAngle" min="0" max="360" value="0" step="1" /><span id="rotationAngleValue">5</span>
+            </li>
+            <li id="translation" data-id="2">
+              <i class="fa-solid fa-sort fa-2xl MoveIcon"></i><br>
+              <label for="translationX">平移</label><br>
+              <label for="translationY">X:</label>
+              <input type="range" id="translationX" name="translationX" min="-100" max="100" value="0" /><span id="translationXValue">5</span><br>
+              <label for="translationY">Y:</label>
+              <input type="range" id="translationY" name="translationY" min="-100" max="100" value="0" /><span id="translationYValue">5</span><br>
+            </li>
+            <li id="scale" data-id="3">
+              <i class="fa-solid fa-sort fa-2xl MoveIcon"></i><br>
+              <label for="scaleX">縮放比例</label><br>
+              <label for="translationY">X:</label>
+              <input type="range" id="scaleX" name="scaleX" min="-10" max="10" step="0.1" value="1" /><span id="scaleXValue">5</span><br>
+              <label for="scaleY">Y:</label>
+              <input type="range" id="scaleY" name="scaleY" min="-10" max="10" step="0.1" value="1" /><span id="scaleYValue">5</span><br>
+            </li>
+            <li id="shear" data-id="4">
+              <i class="fa-solid fa-sort fa-2xl MoveIcon"></i><br>
+              <label for="shearX">剪切量</label><br>
+              <label for="translationY">X:</label>
+              <input type="range" id="shearX" name="shearX" min="-50" max="50" value="0" /><span id="shearXValue">5</span><br>
+              <label for="shearY">Y:</label>
+              <input type="range" id="shearY" name="shearY" min="-50" max="50" value="0" /><span id="shearYValue">5</span><br>
+            </li>
+          </ul>
+          <button id="resetTransfer">重設變換</button>
+    </div>
+  </div>
+    <script src="https://raw.githack.com/SortableJS/Sortable/master/Sortable.js"></script>
+    <script src="https://kit.fontawesome.com/1ae1fd21a3.js" crossorigin="anonymous"></script>
+    <script src="app.js"></script> 
+       
+
+  
+    </body>
+</html>

@@ -1,0 +1,122 @@
+body {
+    font-family: Arial, sans-serif;
+    line-height: 1.6;
+    margin: 20px;
+    background-color: antiquewhite;
+}
+.container{
+    user-select: none;
+    display: flex;
+    flex-direction: row;
+    justify-content:flex-start ;
+    align-items: flex-start;
+    width: 100%;
+}
+
+.rightView{
+      box-shadow: 0 0 10px 5px rgba(0, 0, 0, 0.107);
+    flex: 1;
+    margin-left: 20px;
+    margin-bottom: 30px;
+    padding: 20px;
+    border-radius: 20px;
+    background-color: aliceblue;
+
+}
+#layer1{
+    background-color: white;
+  
+    box-shadow: 0 0 10px 5px rgba(0, 0, 0, 0.107);
+    border-bottom-left-radius: 20px;
+    border-bottom-right-radius: 20px;
+    position: absolute;
+     top: 0; left: 0; 
+     z-index: 0;
+}
+#layer2{
+  opacity: 0.5;
+  background-color: hwb(0 13% 48% / 0);
+  
+  border-radius: 20px;
+  position: absolute;
+   top: 0; left: 0; 
+   z-index: 0;
+}
+
+
+  h1 {
+    font-size: 1.5rem;
+    color: #333;
+    margin-bottom: 10px;
+  }
+
+  div {
+    margin-bottom: 20px;
+  }
+
+  label {
+    display: inline-block;
+    width: 150px;
+    font-weight: bold;
+    color: #555;
+  }
+
+  input[type="range"] {
+    width: 100px;
+    margin: 0 10px;
+  }
+
+  input[type="range"]::-webkit-slider-thumb {
+    background-color: #007bff;
+    border: 1px solid #0056b3;
+    border-radius: 50%;
+    cursor: pointer;
+  }
+
+  input[type="range"]::-webkit-slider-runnable-track {
+    background-color: #ddd;
+    border-radius: 3px;
+  }
+
+  input[type="range"]:focus {
+    outline: none;
+  }
+
+
+
+#clear{
+    position: absolute;
+    width: 100px;
+    height: 50px;
+    left: 20px;
+    z-index: 3;
+}
+#submit{
+  position: absolute;
+  width: 100px;
+  height: 50px;
+  left: 1322px;
+  z-index: 3;
+}
+#clearTemp{
+  position: absolute;
+  width: 100px;
+  height: 50px;
+  left: 1422px;
+  z-index: 3;
+}
+li{
+  list-style-type: none;
+}
+p{
+  user-select: none;
+}
+h1{
+  user-select: none;
+}
+label{
+  user-select: none;
+}
+.MoveIcon{
+  user-select: text;
+}
