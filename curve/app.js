@@ -396,8 +396,9 @@ clearTempButton.addEventListener('click', () => {
 
 const resetTransferButton = document.getElementById('resetTransfer');
 resetTransferButton.addEventListener('click', () => { 
-    resetOrderWithAPI()
+    resetOrderWithAPI();
     clearCanvas2();
+    
     inputs.rotationAngle.value = 0;
     inputs.translationX.value = 0;
     inputs.translationY.value = 0;
@@ -407,12 +408,12 @@ resetTransferButton.addEventListener('click', () => {
     inputs.shearY.value = 0;
 
     InitializeValues(); 
- 
+    updateValues();
     updateFlower();
 });
 const resetSettingButton = document.getElementById('resetSetting');
 resetSettingButton.addEventListener('click', () => { 
-
+    
     clearCanvas2();
     inputs.colorPicker.value = "#e66465";
     inputs.petalCount.value = 5;
@@ -422,6 +423,7 @@ resetSettingButton.addEventListener('click', () => {
     inputs.lineWidth.value = 5;
     InitializeValues(); 
     updateFlower();
+    updateValues();
 });
 
 // 取得輸入框
@@ -468,8 +470,17 @@ function InitializeEvent() {
         let valueShower = document.getElementById(id + "Value");
         input.addEventListener('input', (event) => {
             valueShower.textContent = event.target.value;
+            
         }) ;
 
+    });
+}
+function updateValues(){
+    Object.values(inputs).forEach(input => {
+        if(input.id === "colorPicker")return;
+        let id = input.id;
+        let valueShower = document.getElementById(id + "Value");
+        valueShower.innerHTML = input.value;
     });
 }
 
@@ -570,7 +581,6 @@ const sortable = Sortable.create(listWithHandle, {
     onEnd: function () {
         sortedOrder = getSortedOrder();
         updateFlower();
-      
     }
 });
 function getSortedOrder() {
