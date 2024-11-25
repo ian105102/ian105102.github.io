@@ -378,7 +378,6 @@ class Petal extends Curve_Object {
 
 const clearCanvasButton = document.getElementById('clear');
 clearCanvasButton.addEventListener('click', ()=>{
-    console.log("clear");
     clearCanvas1();
 });
 const submitButton = document.getElementById('submit');
@@ -396,6 +395,7 @@ clearTempButton.addEventListener('click', () => {
 
 const resetTransferButton = document.getElementById('resetTransfer');
 resetTransferButton.addEventListener('click', () => { 
+
     resetOrderWithAPI();
     clearCanvas2();
     
@@ -408,7 +408,7 @@ resetTransferButton.addEventListener('click', () => {
     inputs.shearY.value = 0;
 
     InitializeValues(); 
-    updateValues();
+    updateViewValues();
     updateFlower();
 });
 const resetSettingButton = document.getElementById('resetSetting');
@@ -423,7 +423,8 @@ resetSettingButton.addEventListener('click', () => {
     inputs.lineWidth.value = 5;
     InitializeValues(); 
     updateFlower();
-    updateValues();
+    updateViewValues();
+
 });
 
 // 取得輸入框
@@ -448,8 +449,7 @@ const inputs = {
 };
 
 // 當前值儲存
-const values = {};
-let Temflower;
+
 // 更新函式
 function updateValues(event) {
     const id = event.target.id; // 獲取觸發事件的輸入框 ID
@@ -459,10 +459,17 @@ function updateValues(event) {
         values[id] = parseFloat(event.target.value) || 0; // 數值
     }
     updateFlower();
-    
-    // 可以在這裡加入額外的邏輯處理，例如更新畫布或其他動作
 }
+
+
+const values = {};
+let Temflower;
+let sortedOrder =['rotationAngle','translation',  'scale', 'shear'];
+// 初始化時執行更新
+InitializeValues();
 InitializeEvent();
+updateViewValues();
+
 function InitializeEvent() {
     Object.values(inputs).forEach(input => {
         if(input.id === "colorPicker")return;
@@ -475,7 +482,8 @@ function InitializeEvent() {
 
     });
 }
-function updateValues(){
+
+function updateViewValues(){
     Object.values(inputs).forEach(input => {
         if(input.id === "colorPicker")return;
         let id = input.id;
@@ -493,6 +501,7 @@ function InitializeValues() {
         } else {
             values[id] = parseFloat(input.value) || 0; // 初始化數值
         }
+        
     });
 }
 
@@ -500,14 +509,10 @@ Object.values(inputs).forEach(input => {
     input.addEventListener("input", updateValues); // 當輸入內容改變時觸發
 });
 
-// 初始化時執行更新
-InitializeValues();
-
 
 function updateFlower() {
     clearCanvas2();
-   
-    Temflower?.setPetalSetting(values.innerRadius, values.outerRadius, values.petalCount,values.petalWidth);
+    Temflower.setPetalSetting(values.innerRadius, values.outerRadius, values.petalCount,values.petalWidth);
 
     Temflower.generatePetals();
     Temflower.ResetTransform();
@@ -529,9 +534,9 @@ function updateFlower() {
                 break;
         }
     }
-    Temflower?.ApplyTransform();
+    Temflower.ApplyTransform();
     
-    Temflower?.drawFlower(ctx2, values.colorPicker, values.lineWidth);
+    Temflower.drawFlower(ctx2, values.colorPicker, values.lineWidth);
 }
 
 // 點擊事件：繪製花朵   
@@ -543,8 +548,6 @@ canvas2.addEventListener('click', (event) => {
     const petalSetting = new PetalSeting(values.innerRadius, values.outerRadius, values.petalCount,values.petalWidth);
 
     Temflower = new Petal(x, y, petalSetting );
-
-    console.log(sortedOrder);
     for (let i = sortedOrder.length - 1; i >= 0; i--) {
         const id = sortedOrder[i];
         switch (id) {
@@ -574,7 +577,7 @@ function clearCanvas2() {
 function clearCanvas1() {
     ctx1.clearRect(0, 0, canvas1.width, canvas1.height);
 }
-let sortedOrder =['rotationAngle','translation',  'scale', 'shear'];
+
 const sortable = Sortable.create(listWithHandle, {
     handle: '.MoveIcon',
     animation: 150,
