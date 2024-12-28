@@ -1,9 +1,22 @@
 // 取得 canvas 元素
 const canvas2 = document.getElementById('layer2');
 const canvas1 = document.getElementById('layer1');
+const debugCheckbox = document.getElementById('debugCheckBox');
 const ctx2 = canvas2.getContext('2d');
 const ctx1 = canvas1.getContext('2d');
 
+let debugmod = false;
+
+
+debugCheckbox.addEventListener('change', () => {
+    if(debugCheckbox.checked){
+        debugmod = true;
+    }else{
+        debugmod = false;
+    }
+    console.log(debugmod);
+    updateFlower();
+});
 
 // 定義 Point 類別
 class Point {
@@ -34,15 +47,19 @@ class Point {
         ctx.arc(this.x, this.y, this.pointRadius, 0, Math.PI * 2);
         ctx.fillStyle = 'green';
         ctx.fill();
+        
 
-        // 畫向量1
+    }
+    DrawStartControlVector(ctx){
+        console.log(this.startControlVector);
         ctx.beginPath();
         ctx.moveTo(this.x, this.y);
         ctx.lineTo(this.startControlVector.x,  this.startControlVector.y);
         ctx.strokeStyle = 'red';
         ctx.stroke();
-
-        // 畫向量2
+    }
+    DrawEndControlVector(ctx){
+        console.log(this.startControlVector);
         ctx.beginPath();
         ctx.moveTo(this.x, this.y);
         ctx.lineTo(this.endControlVector.x, this.endControlVector.y);
@@ -78,7 +95,6 @@ class Line {
         ctx.setLineDash([]); // 重置為實線
     }
 
-
 }
 
 //定義 Curve 類別
@@ -88,29 +104,41 @@ class Curve {
         this.points = points;
     }
 
+    DrawPoint(ctx) {
+        for(let i = 1; i < this.points.length; i++){
+            console.log(this.points[i-1]);
+            this.points[i-1]
+            this.points[i-1].DrawPoint(ctx);
+            this.points[i-1].DrawStartControlVector(ctx);
+            this.points[i].DrawPoint(ctx);
+            this.points[i].DrawEndControlVector(ctx);
+        }
+    }
     // 繪製Hermite曲線
-    drawHermiteSpline(ctx, steps = 100, color = 'black', width = 1) {
+    DrawHermiteSpline(ctx, steps = 100, color = 'black', width = 1) {
         for (let i = 0; i < this.points.length - 1; i++) {
             const Point1 = this.points[i];
             const Point2 = this.points[i + 1];
 
-            let tempX = Point1.x;
+            let tempX = Point1.x;                       //暫存點的x,y
             let tempY = Point1.y;
 
             for (let j = 0; j <= steps; j++) {
-                const t = j / steps;
+                const t = j / steps;                    //取出t 0~1   看要取多少點
 
-                const h1 = 2 * t ** 3 - 3 * t ** 2 + 1;
+                const h1 = 2 * t ** 3 - 3 * t ** 2 + 1;     //Hermite基底函數
                 const h2 = -2 * t ** 3 + 3 * t ** 2;
                 const h3 = t ** 3 - 2 * t ** 2 + t;
                 const h4 = t ** 3 - t ** 2;
 
-                const x = h1 * Point1.x + h2 * Point2.x + h3 * -(Point1.x - Point1.startControlVector.x) + h4 * -(Point2.x - Point2.endControlVector.x);
-                const y = h1 * Point1.y + h2 * Point2.y + h3 * -(Point1.y -Point1.startControlVector.y) + h4 * -(Point2.y - Point2.endControlVector.y);
-
-                // 使用繪製片段函數
-                Line.DrawSegment(ctx, { x: tempX, y: tempY }, { x, y }, color, width);
-                tempX = x;
+                const x = h1 * Point1.x + h2 * Point2.x + h3 * -(Point1.x - Point1.startControlVector.x) //計算每一個step的x,y
+                + h4 * -(Point2.x - Point2.endControlVector.x);
+                const y = h1 * Point1.y + h2 * Point2.y + h3 * -(Point1.y -Point1.startControlVector.y) 
+                + h4 * -(Point2.y - Point2.endControlVector.y);
+                
+               
+                Line.DrawSegment(ctx, { x: tempX, y: tempY }, { x, y }, color, width);                  //畫線段
+                tempX = x;                                                                              //更新暫存點                  
                 tempY = y;
             }
         }
@@ -130,7 +158,7 @@ class PetalSeting {
 // 定義 HomogeneousMatrix 類別
 class HomogeneousMatrix {
     constructor() {
-        this.rotationMatrix = [
+        this.matrix = [
             [1, 0, 0],
             [0, 1, 0],
             [0, 0, 1], // 齊次矩陣的固定值
@@ -150,39 +178,40 @@ class HomogeneousMatrix {
         return result;
     }
     ResetHomogeneousMatrix(){
-        this.rotationMatrix = [
+        this.matrix = [
             [1, 0, 0],
             [0, 1, 0],
             [0, 0, 1], // 齊次矩陣的固定值
         ];
     }
-    AddShear(shearX, shearY) {
+    AddShear(shearX, shearY) {  // 剪切
         const newShear = [
             [1, shearX, 0],
             [shearY, 1, 0],
             [0, 0, 1],
         ];
-        // 更新旋轉矩陣為原矩陣乘以新旋轉矩陣
-        this.rotationMatrix = HomogeneousMatrix.multiplyMatrix(this.rotationMatrix, newShear);
+    
+        this.matrix = HomogeneousMatrix.multiplyMatrix(this.matrix, newShear);
     }
-    AddScale(ScaleX, ScaleY) {
+    AddScale(ScaleX, ScaleY) {  // 縮放
         const newScale = [
             [ScaleX, 0, 0],
             [0, ScaleY, 0],
             [0, 0     , 1],
         ];
-        // 更新旋轉矩陣為原矩陣乘以新旋轉矩陣
-        this.rotationMatrix = HomogeneousMatrix.multiplyMatrix(this.rotationMatrix , newScale);
+    
+        this.matrix = HomogeneousMatrix.multiplyMatrix(this.matrix , newScale);
     }
-    SetTranslation(translationX, translationY) {
+    AddTranslation(translationX, translationY) {    // 平移
         const newTranslation = [
             [1, 0, translationX],
             [0, 1, translationY],
             [0, 0, 1],
         ];
-        // 更新旋轉矩陣為原矩陣乘以新旋轉矩陣
-        this.rotationMatrix = HomogeneousMatrix.multiplyMatrix(this.rotationMatrix, newTranslation);
+        
+        this.matrix = HomogeneousMatrix.multiplyMatrix(this.matrix, newTranslation);
     }
+
     // 設定旋轉角度並疊加旋轉
     AddRotation(angleInRadians) {
         const cosTheta = Math.cos(angleInRadians);
@@ -193,22 +222,22 @@ class HomogeneousMatrix {
             [sinTheta, cosTheta, 0],
             [0, 0, 1],
         ];
-        // 更新旋轉矩陣為原矩陣乘以新旋轉矩陣
-        this.rotationMatrix = HomogeneousMatrix.multiplyMatrix(this.rotationMatrix, newRotation);
+      
+        this.matrix = HomogeneousMatrix.multiplyMatrix(this.matrix, newRotation);
     }
 
-    // 應用旋轉矩陣到給定點 (x, y)
+   // 將矩陣應用到點上
     ApplyToPoint(x, y, offsetX = 0, offsetY = 0) {
    
         const homogeneousPoint = [x - offsetX, y - offsetY, 1];
         const rotatedPoint = [
-            this.rotationMatrix[0][0] * homogeneousPoint[0] +
-            this.rotationMatrix[0][1] * homogeneousPoint[1] +
-            this.rotationMatrix[0][2] * homogeneousPoint[2],
+            this.matrix[0][0] * homogeneousPoint[0] +
+            this.matrix[0][1] * homogeneousPoint[1] +
+            this.matrix[0][2] * homogeneousPoint[2],
 
-            this.rotationMatrix[1][0] * homogeneousPoint[0] +
-            this.rotationMatrix[1][1] * homogeneousPoint[1] +
-            this.rotationMatrix[1][2] * homogeneousPoint[2]
+            this.matrix[1][0] * homogeneousPoint[0] +
+            this.matrix[1][1] * homogeneousPoint[1] +
+            this.matrix[1][2] * homogeneousPoint[2]
         ];
 
         return { x: rotatedPoint[0] + offsetX, y: rotatedPoint[1] + offsetY };
@@ -220,18 +249,17 @@ class HomogeneousMatrix {
 class Curve_Object {
         constructor(centerX, centerY) {
             this.curves = [];
-            this.StaticCurves = [];
+            // this.StaticCurves = [];
             this.centerX = centerX;
             this.centerY = centerY;
             this.homogeneousMatrix = new HomogeneousMatrix();
+            this.ResetTransform();
         }
 
         AddCurve(curve) {
             this.curves.push(curve);
         }
-        AddStaticCurve(curve) {
-            this.StaticCurves.push(curve);
-        }
+
         ResetTransform(){
             this.homogeneousMatrix.ResetHomogeneousMatrix();
         }
@@ -243,66 +271,69 @@ class Curve_Object {
         }
         AddTranslation(translationX, translationY) {
        
-            this.homogeneousMatrix.SetTranslation(translationX, translationY);
+            this.homogeneousMatrix.AddTranslation(translationX, translationY);
         }
         AddShear(shearX, shearY) {
             this.homogeneousMatrix.AddShear(shearX, shearY);
         }
-        ResetCurves(){
-            for(let i = 0; i < this.curves.length; i++){
-                for(let j = 0; j < this.curves[i].points.length; j++){
-                    this.curves[i].points[j].x = this.StaticCurves[i].points[j].x;
-                    this.curves[i].points[j].y = this.StaticCurves[i].points[j].y;
-                    this.curves[i].points[j].startControlVector.x = this.StaticCurves[i].points[j].startControlVector.x;
-                    this.curves[i].points[j].startControlVector.y = this.StaticCurves[i].points[j].startControlVector.y;
-                    this.curves[i].points[j].endControlVector.x = this.StaticCurves[i].points[j].endControlVector.x;
-                    this.curves[i].points[j].endControlVector.y = this.StaticCurves[i].points[j].endControlVector.y;
-                }
-            }
-        }
-        transformAndAssign = (point, matrix, centerX, centerY) => {
-            const transformed = matrix.ApplyToPoint(point.x, point.y, centerX, centerY);
-            point.x = transformed.x;
-            point.y = transformed.y;
-        };
+
+
+
+        // AddStaticCurve(curve) {
+        //     this.StaticCurves.push(curve);
+        // }
+                // ResetCurves(){
+        //     for(let i = 0; i < this.curves.length; i++){
+        //         for(let j = 0; j < this.curves[i].points.length; j++){
+        //             this.curves[i].points[j].x = this.StaticCurves[i].points[j].x;
+        //             this.curves[i].points[j].y = this.StaticCurves[i].points[j].y;
+        //             this.curves[i].points[j].startControlVector.x = this.StaticCurves[i].points[j].startControlVector.x;
+        //             this.curves[i].points[j].startControlVector.y = this.StaticCurves[i].points[j].startControlVector.y;
+        //             this.curves[i].points[j].endControlVector.x = this.StaticCurves[i].points[j].endControlVector.x;
+        //             this.curves[i].points[j].endControlVector.y = this.StaticCurves[i].points[j].endControlVector.y;
+        //         }
+        //     }
+        // }
         // 使用齊次座標進行旋轉
-        ApplyStaticCurvesTransform() {
-            this.StaticCurves.forEach((curve) => {
-                curve.points.forEach((point) => {
-                    // Transform the main point
-                    this.transformAndAssign(point, this.homogeneousMatrix, this.centerX, this.centerY);
+        // ApplyStaticCurvesTransform() {
+        //     this.StaticCurves.forEach((curve) => {
+        //         curve.points.forEach((point) => {
+        //             // Transform the main point
+        //             this.transformAndAssign(point, this.homogeneousMatrix, this.centerX, this.centerY);
                     
-                    // Transform the control vectors
-                    this.transformAndAssign(point.startControlVector, this.homogeneousMatrix, this.centerX, this.centerY);
-                    this.transformAndAssign(point.endControlVector, this.homogeneousMatrix, this.centerX, this.centerY);
-                });
-            });
-        }
+        //             // Transform the control vectors
+        //             this.transformAndAssign(point.startControlVector, this.homogeneousMatrix, this.centerX, this.centerY);
+        //             this.transformAndAssign(point.endControlVector, this.homogeneousMatrix, this.centerX, this.centerY);
+        //         });
+        //     });
+        // }
 
         // 使用齊次座標進行旋轉
         ApplyTransform() {
             this.curves.forEach((curve) => {
                 curve.points.forEach((point) => {
                     // Transform the main point
-                    this.transformAndAssign(point, this.homogeneousMatrix, this.centerX, this.centerY);
+                    this.TransformAssign(point, this.homogeneousMatrix, this.centerX, this.centerY);
                     
                     // Transform the control vectors
-                    this.transformAndAssign(point.startControlVector, this.homogeneousMatrix, this.centerX, this.centerY);
-                    this.transformAndAssign(point.endControlVector, this.homogeneousMatrix, this.centerX, this.centerY);
+                    this.TransformAssign(point.startControlVector, this.homogeneousMatrix, this.centerX, this.centerY);
+                    this.TransformAssign(point.endControlVector, this.homogeneousMatrix, this.centerX, this.centerY);
                 });
             });
         }
+        TransformAssign(point, matrix, centerX, centerY){
+            const transformed = matrix.ApplyToPoint(point.x, point.y, centerX, centerY);
+            point.x = transformed.x;
+            point.y = transformed.y;
+        };
 }
 
 // 定義 Petal 類別
-class Petal extends Curve_Object {
+class Flower extends Curve_Object {
     constructor(centerX, centerY, petalSetting) {
         super(centerX, centerY);
-        this.centerX = centerX;
-        this.centerY = centerY;
         this.petalSetting = petalSetting;
-
-        this.GeneratePetals(); // 抽離邏輯到獨立函數
+        this.GenerateFlower(); 
     }
     SetPetalSetting(arg1, arg2, arg3, arg4) {
         if (typeof arg1 === 'object') {
@@ -317,7 +348,7 @@ class Petal extends Curve_Object {
         }
     }
     // 生成花瓣
-    GeneratePetals() {
+    GenerateFlower() {
         const { petalCount, petalRadius, petalCenterSize, PetalWidth } = this.petalSetting;
         const angleStep = (Math.PI * 2) / petalCount;
         const vectorScale = petalRadius * 0.8;
@@ -354,27 +385,20 @@ class Petal extends Curve_Object {
 
             let curve = new Curve([startPoint, endPoint]);
             this.AddCurve(curve);
-            const deepCopiedCurve = JSON.parse(JSON.stringify(curve));
-            this.AddStaticCurve(deepCopiedCurve);
+  
         }
     }
 
     DrawFlower(ctx, color = 'red', width = 1) {
         this.curves.forEach((curve) => {
-            curve.drawHermiteSpline(ctx, 100, color, width);
-        });
-    }
-    DrawShowTransform(ctx,color = 'red', width = 1) {
-        this.curves.forEach((curve) => {
-            curve.drawHermiteSpline(ctx, 100, color, width);
+            curve.DrawHermiteSpline(ctx, 100, color, width);
         });
     }
 
+
     DrawPoint(ctx) {
         this.curves.forEach((curve) => {
-            curve.points.forEach((point) => {
-                point.drawPoint(ctx);
-            });
+            curve.DrawPoint(ctx);
         });
     }
 }
@@ -524,7 +548,7 @@ function updateFlower() {
     if (!Temflower) return;
     Temflower.SetPetalSetting(values.innerRadius, values.outerRadius, values.petalCount,values.petalWidth);
 
-    Temflower.GeneratePetals();
+    Temflower.GenerateFlower();
     Temflower.ResetTransform();
 
     for (let i = sortedOrder.length - 1; i >= 0; i--) {
@@ -547,6 +571,7 @@ function updateFlower() {
     Temflower.ApplyTransform();
     
     Temflower.DrawFlower(ctx2, values.colorPicker, values.lineWidth);
+    if(debugmod)Temflower.DrawPoint(ctx2);
 }
 
 // 點擊事件：繪製花朵   
@@ -557,7 +582,7 @@ canvas2.addEventListener('click', (event) => {
     ClearCanvas2();
     const petalSetting = new PetalSeting(values.innerRadius, values.outerRadius, values.petalCount,values.petalWidth);
 
-    Temflower = new Petal(x, y, petalSetting );
+    Temflower = new Flower(x, y, petalSetting );
     for (let i = sortedOrder.length - 1; i >= 0; i--) {
         const id = sortedOrder[i];
         switch (id) {
@@ -578,6 +603,8 @@ canvas2.addEventListener('click', (event) => {
 
     Temflower.ApplyTransform();
     Temflower.DrawFlower(ctx2, values.colorPicker, values.lineWidth);
+    if(debugmod)Temflower.DrawPoint(ctx2);
+    
 }); 
 
 // 清除畫布
@@ -605,3 +632,14 @@ const originalOrder = Array.from(document.querySelectorAll('#listWithHandle li')
 function ResetOrderWithAPI() {
     sortable.sort(originalOrder); // 使用 Sortable.js 的排序方法
 }
+const SaveButton = document.getElementById('SaveImage');
+SaveButton.addEventListener('click',()=>{
+    const dataURL = canvas1.toDataURL("image/png");
+    const link = document.createElement('a');
+    link.href = dataURL;
+    link.download = 'flower.png'; // 指定下載的檔案名稱
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+   
+})
