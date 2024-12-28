@@ -16,18 +16,18 @@ class Point {
     }
 
     // 計算向量的長度
-    vectorLength(vector) {
+    VectorLength(vector) {
         return Math.sqrt(vector.x ** 2 + vector.y ** 2);
     }
 
     // 印出點與向量的資訊
-    printPointInfo() {
+    PrintPointInfo() {
         console.log(`Point: (${this.x}, ${this.y})`);
-        console.log(`Vector 1: (${this.startControlVector.x}, ${this.startControlVector.y}), Length: ${this.vectorLength(this.startControlVector)}`);
-        console.log(`Vector 2: (${this.endControlVector.x}, ${this.endControlVector.y}), Length: ${this.vectorLength(this.endControlVector)}`);
+        console.log(`Vector 1: (${this.startControlVector.x}, ${this.startControlVector.y}), Length: ${this.VectorLength(this.startControlVector)}`);
+        console.log(`Vector 2: (${this.endControlVector.x}, ${this.endControlVector.y}), Length: ${this.VectorLength(this.endControlVector)}`);
     }
     // 繪製點與向量
-    drawPoint(ctx) {
+    DrawPoint(ctx) {
         // 畫點
         ctx.beginPath();
         ctx.lineWidth = 1;
@@ -58,7 +58,7 @@ class Line {
     }
 
     // 迴圈走訪所有點並畫線
-    draw(ctx, color = 'black', width = 1, dashed = false) {
+    Draw(ctx, color = 'black', width = 1, dashed = false) {
         for (let i = 0; i < this.points.length - 1; i++) {
             const start = this.points[i];
             const end = this.points[i + 1];
@@ -66,7 +66,7 @@ class Line {
         }
     }
     // 繪製單一線段
-    static drawSegment(ctx, start, end, color = 'black', width = 1, dashed = false) {
+    static DrawSegment(ctx, start, end, color = 'black', width = 1, dashed = false) {
         ctx.beginPath();
         ctx.setLineDash(dashed ? [5, 5] : []); // 設定虛線樣式
         ctx.strokeStyle = color;              // 線條顏色
@@ -81,14 +81,14 @@ class Line {
 
 }
 
-
+//定義 Curve 類別
 class Curve {
     constructor(points) {
         // 確保所有點結構正確，並儲存為陣列
         this.points = points;
     }
 
-    // 繪製 Hermite 样条曲線
+    // 繪製Hermite曲線
     drawHermiteSpline(ctx, steps = 100, color = 'black', width = 1) {
         for (let i = 0; i < this.points.length - 1; i++) {
             const Point1 = this.points[i];
@@ -109,7 +109,7 @@ class Curve {
                 const y = h1 * Point1.y + h2 * Point2.y + h3 * -(Point1.y -Point1.startControlVector.y) + h4 * -(Point2.y - Point2.endControlVector.y);
 
                 // 使用繪製片段函數
-                Line.drawSegment(ctx, { x: tempX, y: tempY }, { x, y }, color, width);
+                Line.DrawSegment(ctx, { x: tempX, y: tempY }, { x, y }, color, width);
                 tempX = x;
                 tempY = y;
             }
@@ -127,6 +127,7 @@ class PetalSeting {
     }
 }
 
+// 定義 HomogeneousMatrix 類別
 class HomogeneousMatrix {
     constructor() {
         this.rotationMatrix = [
@@ -213,6 +214,9 @@ class HomogeneousMatrix {
         return { x: rotatedPoint[0] + offsetX, y: rotatedPoint[1] + offsetY };
     }
 }
+
+
+// 定義 Curve_Object 類別，使用HomogeneousMatrix進行變換
 class Curve_Object {
         constructor(centerX, centerY) {
             this.curves = [];
@@ -298,9 +302,9 @@ class Petal extends Curve_Object {
         this.centerY = centerY;
         this.petalSetting = petalSetting;
 
-        this.generatePetals(); // 抽離邏輯到獨立函數
+        this.GeneratePetals(); // 抽離邏輯到獨立函數
     }
-    setPetalSetting(arg1, arg2, arg3, arg4) {
+    SetPetalSetting(arg1, arg2, arg3, arg4) {
         if (typeof arg1 === 'object') {
             // 如果傳入的是一個物件
             this.petalSetting = arg1;
@@ -312,9 +316,8 @@ class Petal extends Curve_Object {
             this.petalSetting.PetalWidth = arg4;
         }
     }
-    
-
-    generatePetals() {
+    // 生成花瓣
+    GeneratePetals() {
         const { petalCount, petalRadius, petalCenterSize, PetalWidth } = this.petalSetting;
         const angleStep = (Math.PI * 2) / petalCount;
         const vectorScale = petalRadius * 0.8;
@@ -356,18 +359,18 @@ class Petal extends Curve_Object {
         }
     }
 
-    drawFlower(ctx, color = 'red', width = 1) {
+    DrawFlower(ctx, color = 'red', width = 1) {
         this.curves.forEach((curve) => {
             curve.drawHermiteSpline(ctx, 100, color, width);
         });
     }
-    drawShowTransform(ctx,color = 'red', width = 1) {
+    DrawShowTransform(ctx,color = 'red', width = 1) {
         this.curves.forEach((curve) => {
             curve.drawHermiteSpline(ctx, 100, color, width);
         });
     }
 
-    drawPoint(ctx) {
+    DrawPoint(ctx) {
         this.curves.forEach((curve) => {
             curve.points.forEach((point) => {
                 point.drawPoint(ctx);
@@ -376,9 +379,15 @@ class Petal extends Curve_Object {
     }
 }
 
+
+
+
+
+//-------------------------------------------- 以下為處理畫布的程式碼 --------------------------------------------
+
 const clearCanvasButton = document.getElementById('clear');
 clearCanvasButton.addEventListener('click', ()=>{
-    clearCanvas1();
+    ClearCanvas1();
 });
 const submitButton = document.getElementById('submit');
 submitButton.addEventListener('click', () => { 
@@ -388,7 +397,7 @@ submitButton.addEventListener('click', () => {
 });
 const clearTempButton = document.getElementById('clearTemp');
 clearTempButton.addEventListener('click', () => {
-    clearCanvas2();
+    ClearCanvas2();
     Temflower = null;
 });
 
@@ -396,8 +405,8 @@ clearTempButton.addEventListener('click', () => {
 const resetTransferButton = document.getElementById('resetTransfer');
 resetTransferButton.addEventListener('click', () => { 
 
-    resetOrderWithAPI();
-    clearCanvas2();
+    ResetOrderWithAPI();
+    ClearCanvas2();
     
     inputs.rotationAngle.value = 0;
     inputs.translationX.value = 0;
@@ -414,7 +423,7 @@ resetTransferButton.addEventListener('click', () => {
 const resetSettingButton = document.getElementById('resetSetting');
 resetSettingButton.addEventListener('click', () => { 
     
-    clearCanvas2();
+    ClearCanvas2();
     inputs.colorPicker.value = "#e66465";
     inputs.petalCount.value = 5;
     inputs.innerRadius.value = 30;
@@ -511,10 +520,11 @@ Object.values(inputs).forEach(input => {
 
 
 function updateFlower() {
-    clearCanvas2();
-    Temflower.setPetalSetting(values.innerRadius, values.outerRadius, values.petalCount,values.petalWidth);
+    ClearCanvas2();
+    if (!Temflower) return;
+    Temflower.SetPetalSetting(values.innerRadius, values.outerRadius, values.petalCount,values.petalWidth);
 
-    Temflower.generatePetals();
+    Temflower.GeneratePetals();
     Temflower.ResetTransform();
 
     for (let i = sortedOrder.length - 1; i >= 0; i--) {
@@ -536,7 +546,7 @@ function updateFlower() {
     }
     Temflower.ApplyTransform();
     
-    Temflower.drawFlower(ctx2, values.colorPicker, values.lineWidth);
+    Temflower.DrawFlower(ctx2, values.colorPicker, values.lineWidth);
 }
 
 // 點擊事件：繪製花朵   
@@ -544,7 +554,7 @@ canvas2.addEventListener('click', (event) => {
     const rect = canvas2.getBoundingClientRect();
     const x = event.clientX - rect.left;
     const y = event.clientY - rect.top;
-    clearCanvas2();
+    ClearCanvas2();
     const petalSetting = new PetalSeting(values.innerRadius, values.outerRadius, values.petalCount,values.petalWidth);
 
     Temflower = new Petal(x, y, petalSetting );
@@ -567,14 +577,14 @@ canvas2.addEventListener('click', (event) => {
     }
 
     Temflower.ApplyTransform();
-    Temflower.drawFlower(ctx2, values.colorPicker, values.lineWidth);
+    Temflower.DrawFlower(ctx2, values.colorPicker, values.lineWidth);
 }); 
 
 // 清除畫布
-function clearCanvas2() {
+function ClearCanvas2() {
     ctx2.clearRect(0, 0, canvas2.width, canvas2.height);
 }
-function clearCanvas1() {
+function ClearCanvas1() {
     ctx1.clearRect(0, 0, canvas1.width, canvas1.height);
 }
 
@@ -582,16 +592,16 @@ const sortable = Sortable.create(listWithHandle, {
     handle: '.MoveIcon',
     animation: 150,
     onEnd: function () {
-        sortedOrder = getSortedOrder();
+        sortedOrder = GetSortedOrder();
         updateFlower();
     }
 });
-function getSortedOrder() {
+function GetSortedOrder() {
     const listItems = document.querySelectorAll('#listWithHandle li');
     return Array.from(listItems).map(item => item.id); // 回傳項目的 data-id
 }
 const originalOrder = Array.from(document.querySelectorAll('#listWithHandle li')).map(item => item.dataset.id);
 // 回復排序的函數
-function resetOrderWithAPI() {
+function ResetOrderWithAPI() {
     sortable.sort(originalOrder); // 使用 Sortable.js 的排序方法
 }

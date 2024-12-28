@@ -1,4 +1,5 @@
 body {
+  
     font-family: Arial, sans-serif;
     line-height: 1.6;
     margin: 20px;
@@ -7,6 +8,7 @@ body {
 .container{
     user-select: none;
     display: flex;
+  
     flex-direction: row;
     justify-content:flex-start ;
     align-items: flex-start;
@@ -14,7 +16,8 @@ body {
 }
 
 .rightView{
-      box-shadow: 0 0 10px 5px rgba(0, 0, 0, 0.107);
+ 
+    box-shadow: 0 0 10px 5px rgba(0, 0, 0, 0.107);
     flex: 1;
     margin-left: 20px;
     margin-bottom: 30px;
@@ -22,6 +25,22 @@ body {
     border-radius: 20px;
     background-color: aliceblue;
 
+}
+.rightView p{
+  padding:0px;
+  margin: 0px;
+}
+.rightView h2{
+  margin:0px 0px;
+  padding:0px;
+}
+#colorPicker{
+  padding: 0;
+}
+.rightView div{
+  height: auto;
+  
+  margin: 0;
 }
 #layer1{
     background-color: white;
@@ -57,13 +76,14 @@ body {
   label {
     display: inline-block;
     width: 150px;
+
     font-weight: bold;
     color: #555;
   }
 
   input[type="range"] {
     width: 100px;
-    margin: 0 10px;
+   
   }
 
   input[type="range"]::-webkit-slider-thumb {
@@ -95,14 +115,14 @@ body {
   position: absolute;
   width: 100px;
   height: 50px;
-  left: 1322px;
+  left: 922px;
   z-index: 3;
 }
 #clearTemp{
   position: absolute;
   width: 100px;
   height: 50px;
-  left: 1422px;
+  left: 1022px;
   z-index: 3;
 }
 li{
@@ -117,6 +137,20 @@ h1{
 label{
   user-select: none;
 }
-.MoveIcon{
-  user-select: text;
+#listWithHandle{
+  padding: 10px;
+}
+#listWithHandle li{
+  display: flex;
+
+ 
+}
+#listWithHandle i {
+  margin: auto 10px;
+
+}
+
+.listlable {
+  display: inline-block; /* 設置為行內塊元素，避免換行 */
+  white-space: nowrap;   /* 禁止內容自動換行 */
 }
