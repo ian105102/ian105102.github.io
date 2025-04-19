@@ -1,0 +1,43 @@
+
+<!--
+@File:Hw1.html
+@Date:2025/2/25 下午2:13:54
+-->
+<!DOCTYPE html>
+<html lang="zh-Hant">
+    <head>
+        <title>hello world</title>
+        <meta charser="UTF-8">
+        <link rel="stylesheet" href="./style.css">
+
+        <link rel="preconnect" href="https://fonts.googleapis.com">
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link href="https://fonts.googleapis.com/css2?family=Caveat:wght@400..700&display=swap" rel="stylesheet">
+
+        <!-- other  -->
+        <script src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils/camera_utils.js" crossorigin="anonymous"></script>
+ 
+        <!-- FACE  -->
+        <script src="https://cdn.jsdelivr.net/npm/@mediapipe/face_mesh/face_mesh.js" crossorigin="anonymous"></script>
+
+        <!-- POSE -->
+        <script src="https://cdn.jsdelivr.net/npm/@mediapipe/pose/pose.js" crossorigin="anonymous"></script>
+
+        <!-- P5 -->
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.9.0/p5.js"></script>
+
+    </head>
+    <body>
+        <div class = "buttonContainer">
+            <button id="normalButton">normal</button>
+            <button id="ConvexHullButton">ConvexHull</button>
+            <button id="jokerButton">joker</button>
+        </div>
+
+        <script src="./ConvexHull.js"></script>
+        <script src="./detection.js"></script>
+
+
+        <script src="./App.js"></script>
+    </body>
+</html>

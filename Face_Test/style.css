@@ -1,0 +1,19 @@
+
+
+body{
+    background-color:rgb(255, 255, 255) ;
+   
+}
+.p5Canvas{
+ 
+    display: block;
+    margin: auto;
+    
+}
+.buttonContainer{
+    position:absolute;
+   
+    justify-content: center;
+    
+    margin: auto;
+}

@@ -145,8 +145,8 @@ class Curve {
     }
 }
 
-// 定義 PetalSeting 類別
-class PetalSeting {
+// 定義 PetalSetting 類別
+class PetalSetting {
     constructor(petalCenterSize = 10, petalRadius = 100, petalCount = 6 , PetalWidth = 0.05 ) {
         this.petalCenterSize = petalCenterSize;
         this.petalRadius = petalRadius;
@@ -580,7 +580,7 @@ canvas2.addEventListener('click', (event) => {
     const x = event.clientX - rect.left;
     const y = event.clientY - rect.top;
     ClearCanvas2();
-    const petalSetting = new PetalSeting(values.innerRadius, values.outerRadius, values.petalCount,values.petalWidth);
+    const petalSetting = new PetalSetting(values.innerRadius, values.outerRadius, values.petalCount,values.petalWidth);
 
     Temflower = new Flower(x, y, petalSetting );
     for (let i = sortedOrder.length - 1; i >= 0; i--) {
